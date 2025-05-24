@@ -1,0 +1,14 @@
+streamlit
+flask
+flask-cors
+supabase
+google-generativeai
+assemblyai
+python-dotenv
+requests
+pillow
+opencv-python
+pytesseract
+groq
+pandas
+numpy

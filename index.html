@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Observer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="container">
+            <h1>Learning Observer</h1>
+            <p class="subtitle">Welcome! Please sign in to continue</p>
+
+            <div class="form-card">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="showLogin()">Sign In</button>
+                    <button class="tab-btn" onclick="showRegister()">Create Account</button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login-form" class="form-section">
+                    <input type="email" id="login-email" placeholder="Your email address" class="input-field">
+                    <input type="password" id="login-password" placeholder="Your password" class="input-field">
+                    <button onclick="login()" class="primary-btn">Sign In</button>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-form" class="form-section hidden">
+                    <input type="text" id="reg-name" placeholder="Your full name" class="input-field">
+                    <input type="email" id="reg-email" placeholder="Your email address" class="input-field">
+                    <select id="reg-role" class="input-field" onchange="handleRoleChange()">
+                        <option value="">Choose your role</option>
+                        <option value="Observer">Teacher/Observer</option>
+                        <option value="Parent">Parent</option>
+                    </select>
+                    <div id="child-selection" class="hidden">
+                        <select id="reg-child" class="input-field">
+                            <option value="">Select your child</option>
+                        </select>
+                    </div>
+                    <input type="password" id="reg-password" placeholder="Create a password" class="input-field">
+                    <input type="password" id="reg-confirm" placeholder="Confirm your password" class="input-field">
+                    <button onclick="register()" class="primary-btn">Create Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Observer Dashboard -->
+    <div id="observer-screen" class="screen">
+        <div class="container">
+            <div class="header">
+                <h1>Teacher Dashboard</h1>
+                <div class="header-actions">
+                    <span id="observer-welcome">Welcome, Teacher!</span>
+                    <button onclick="logout()" class="logout-btn">Sign Out</button>
+                </div>
+            </div>
+
+            <!-- Observer Tabs -->
+            <div class="tab-container">
+                <div class="tab-buttons-horizontal">
+                    <button class="tab-btn-horizontal active" onclick="showObserverTab('observation')">Observation Processing</button>
+                    <button class="tab-btn-horizontal" onclick="showObserverTab('goals')">Goal Management</button>
+                    <button class="tab-btn-horizontal" onclick="showObserverTab('messages')">Messages</button>
+                    <button class="tab-btn-horizontal" onclick="showObserverTab('monthly')">Monthly Reports</button>
+                </div>
+            </div>
+
+            <!-- Observation Processing Tab -->
+            <div id="observation-tab" class="tab-content active">
+                <div class="dashboard-card">
+                    <h2>Create New Observation Report</h2>
+                    <p>Choose how you want to record today's observation</p>
+
+                    <!-- Session Info -->
+                    <div class="session-info">
+                        <h3>Session Information</h3>
+                        <div class="form-row">
+                            <input type="text" id="student-name" placeholder="Student name" class="input-field">
+                            <input type="text" id="observer-name" placeholder="Your name" class="input-field">
+                        </div>
+                        <div class="form-row">
+                            <input type="date" id="session-date" class="input-field">
+                            <input type="time" id="session-start" class="input-field">
+                            <input type="time" id="session-end" class="input-field">
+                        </div>
+                        <select id="student-select" class="input-field">
+                            <option value="">Select student</option>
+                        </select>
+                    </div>
+
+                    <!-- Processing Options -->
+                    <div class="processing-options">
+                        <div class="option-card" onclick="showImageUpload()">
+                            <div class="option-icon">📷</div>
+                            <h3>Upload Photo</h3>
+                            <p>Take a photo of written observation notes</p>
+                        </div>
+
+                        <div class="option-card" onclick="showAudioUpload()">
+                            <div class="option-icon">🎤</div>
+                            <h3>Upload Recording</h3>
+                            <p>Upload an audio recording of the session</p>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div id="image-upload" class="upload-section hidden">
+                        <h3>Upload Photo of Observation Notes</h3>
+                        <div class="upload-area" onclick="document.getElementById('image-input').click()">
+                            <div class="upload-icon">📁</div>
+                            <p>Click here to choose a photo</p>
+                            <input type="file" id="image-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                        </div>
+                        <div id="image-preview" class="preview hidden"></div>
+                        <button id="process-image-btn" onclick="processImage()" class="primary-btn hidden">Process Photo</button>
+                    </div>
+
+                    <!-- Audio Upload -->
+                    <div id="audio-upload" class="upload-section hidden">
+                        <h3>Upload Audio Recording</h3>
+                        <div class="upload-area" onclick="document.getElementById('audio-input').click()">
+                            <div class="upload-icon">🎵</div>
+                            <p>Click here to choose an audio file</p>
+                            <input type="file" id="audio-input" accept="audio/*" style="display: none;" onchange="handleAudioUpload(event)">
+                        </div>
+                        <div id="audio-preview" class="preview hidden"></div>
+                        <button id="process-audio-btn" onclick="processAudio()" class="primary-btn hidden">Process Recording</button>
+                    </div>
+
+                    <!-- Transcript Editor -->
+                    <div id="transcript-editor" class="transcript-section hidden">
+                        <h3>Edit Transcription</h3>
+                        <textarea id="transcript-text" class="transcript-textarea" rows="10"></textarea>
+                        <button onclick="regenerateReport()" class="primary-btn">Regenerate Report with Edited Transcript</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goal Management Tab -->
+            <div id="goals-tab" class="tab-content">
+                <div class="dashboard-card">
+                    <h2>Goal Management</h2>
+
+                    <!-- Add New Goal -->
+                    <div class="goal-section">
+                        <h3>Add New Goal</h3>
+                        <div class="form-row">
+                            <select id="goal-child-select" class="input-field">
+                                <option value="">Select Child</option>
+                            </select>
+                            <input type="date" id="goal-target-date" class="input-field">
+                        </div>
+                        <textarea id="goal-description" placeholder="Goal Description" class="input-field" rows="3"></textarea>
+                        <button onclick="saveGoal()" class="primary-btn">Save Goal</button>
+                    </div>
+
+                    <!-- Current Goals -->
+                    <div class="goals-list">
+                        <h3>Current Goals</h3>
+                        <div id="goals-container">
+                            <!-- Goals will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div id="messages-tab" class="tab-content">
+                <div class="dashboard-card">
+                    <h2>Messages with Parents</h2>
+
+                    <!-- Parent Selection -->
+                    <div class="message-controls">
+                        <select id="parent-select" class="input-field" onchange="loadMessages()">
+                            <option value="">Select Parent to Message</option>
+                        </select>
+                        <div id="child-info" class="child-info hidden"></div>
+                    </div>
+
+                    <!-- Message History -->
+                    <div id="message-history" class="message-history">
+                        <!-- Messages will be loaded here -->
+                    </div>
+
+                    <!-- Send Message -->
+                    <div id="send-message-section" class="send-message hidden">
+                        <textarea id="new-message" placeholder="Type your message..." class="message-input" rows="3"></textarea>
+                        <button onclick="sendMessage()" class="primary-btn">Send Message</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Reports Tab -->
+            <div id="monthly-tab" class="tab-content">
+                <div class="dashboard-card">
+                    <h2>Monthly Progress Reports</h2>
+
+                    <!-- Date Selection -->
+                    <div class="form-row">
+                        <select id="report-child-select" class="input-field">
+                            <option value="">Select Student</option>
+                        </select>
+                        <select id="report-year" class="input-field">
+                            <!-- Years will be populated -->
+                        </select>
+                        <select id="report-month" class="input-field">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <button onclick="generateMonthlyReport()" class="primary-btn">Generate Report</button>
+                    </div>
+
+                    <!-- Monthly Report Display -->
+                    <div id="monthly-report-display" class="monthly-report hidden">
+                        <div id="monthly-summary"></div>
+                        <div id="monthly-charts"></div>
+                        <button onclick="shareReportWithParent()" class="secondary-btn">Share with Parent</button>
+                        <button onclick="downloadMonthlyReport()" class="secondary-btn">Download Report</button>
+                    </div>
+
+                    <!-- Parent Feedback Section -->
+                    <div id="parent-feedback-section" class="feedback-section">
+                        <h3>Parent Feedback on Monthly Reports</h3>
+                        <div id="feedback-container">
+                            <!-- Feedback will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parent Dashboard -->
+    <div id="parent-screen" class="screen">
+        <div class="container">
+            <div class="header">
+                <h1>Parent Portal</h1>
+                <div class="header-actions">
+                    <span id="parent-welcome">Welcome, Parent!</span>
+                    <button onclick="logout()" class="logout-btn">Sign Out</button>
+                </div>
+            </div>
+
+            <!-- Parent Tabs -->
+            <div class="tab-container">
+                <div class="tab-buttons-horizontal">
+                    <button class="tab-btn-horizontal active" onclick="showParentTab('reports')">Reports</button>
+                    <button class="tab-btn-horizontal" onclick="showParentTab('parent-messages')">Messages</button>
+                    <button class="tab-btn-horizontal" onclick="showParentTab('parent-goals')">Goals</button>
+                    <button class="tab-btn-horizontal" onclick="showParentTab('parent-monthly')">Monthly Reports</button>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reports-tab" class="tab-content active">
+                <div class="dashboard-card">
+                    <div id="child-dashboard-info">
+                        <h2 id="child-info-header">Your Child's Progress</h2>
+                        <div class="child-metrics">
+                            <div class="metric-card">
+                                <span class="metric-label">Age</span>
+                                <span class="metric-value" id="child-age">-</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Grade/Class</span>
+                                <span class="metric-value" id="child-grade">-</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Assigned Observer</span>
+                                <span class="metric-value" id="child-observer">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Recent Reports</h3>
+                    <div id="reports-container">
+                        <!-- Reports will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent Messages Tab -->
+            <div id="parent-messages-tab" class="tab-content">
+                <div class="dashboard-card">
+                    <h2>Messages with Observer</h2>
+                    <div id="observer-info" class="observer-info"></div>
+
+                    <!-- Message History -->
+                    <div id="parent-message-history" class="message-history">
+                        <!-- Messages will be loaded here -->
+                    </div>
+
+                    <!-- Send Message -->
+                    <div class="send-message">
+                        <textarea id="parent-new-message" placeholder="Type your message..." class="message-input" rows="3"></textarea>
+                        <button onclick="sendParentMessage()" class="primary-btn">Send Message</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent Goals Tab -->
+            <div id="parent-goals-tab" class="tab-content">
+                <div class="dashboard-card">
+                    <h2>Goal Tracking</h2>
+                    <div id="parent-goals-container">
+                        <!-- Goals will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent Monthly Reports Tab -->
+            <div id="parent-monthly-tab" class="tab-content">
+                <div class="dashboard-card">
+                    <h2>Monthly Progress Reports</h2>
+
+                    <!-- Date Selection -->
+                    <div class="form-row">
+                        <select id="parent-report-year" class="input-field">
+                            <!-- Years will be populated -->
+                        </select>
+                        <select id="parent-report-month" class="input-field">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <button onclick="generateParentMonthlyReport()" class="primary-btn">View Report</button>
+                    </div>
+
+                    <!-- Parent Monthly Report Display -->
+                    <div id="parent-monthly-report-display" class="monthly-report hidden">
+                        <div id="parent-monthly-summary"></div>
+                        <div id="parent-monthly-charts"></div>
+                        <button onclick="downloadParentMonthlyReport()" class="secondary-btn">Download Report</button>
+
+                        <!-- Feedback Form -->
+                        <div id="monthly-feedback-form" class="feedback-form hidden">
+                            <h3>Provide Feedback</h3>
+                            <textarea id="monthly-feedback-text" placeholder="Your feedback on this monthly report" class="input-field" rows="3"></textarea>
+                            <div class="rating-section">
+                                <label>Rating (1-5):</label>
+                                <input type="range" id="monthly-rating" min="1" max="5" value="3" class="rating-slider">
+                                <span id="rating-value">3</span>
+                            </div>
+                            <button onclick="submitMonthlyFeedback()" class="primary-btn">Submit Feedback</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-screen" class="screen">
+        <div class="container">
+            <div class="header">
+                <h1>Admin Dashboard</h1>
+                <button onclick="logout()" class="logout-btn">Sign Out</button>
+            </div>
+
+            <!-- Admin Tabs -->
+            <div class="tab-container">
+                <div class="tab-buttons-horizontal">
+                    <button class="tab-btn-horizontal active" onclick="showAdminTab('users')">User Management</button>
+                    <button class="tab-btn-horizontal" onclick="showAdminTab('mappings')">Parent-Child Connections</button>
+                    <button class="tab-btn-horizontal" onclick="showAdminTab('observer-mappings')">Observer-Child Connections</button>
+                    <button class="tab-btn-horizontal" onclick="showAdminTab('activity')">Activity Logs</button>
+                    <button class="tab-btn-horizontal" onclick="showAdminTab('admin-processing')">Report Processing</button>
+                </div>
+            </div>
+
+            <!-- User Management Tab -->
+            <div id="users-tab" class="tab-content active">
+                <div class="dashboard-card">
+                    <h2>User Management</h2>
+
+                    <!-- Stats Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Total Users</h3>
+                            <div class="stat-number" id="total-users">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Children</h3>
+                            <div class="stat-number" id="total-children">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Reports</h3>
+                            <div class="stat-number" id="total-reports">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Active Observers</h3>
+                            <div class="stat-number" id="active-observers">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Users List -->
+                    <div id="users-container">
+                        <!-- Users will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parent-Child Mappings Tab -->
+            <div id="mappings-tab" class="tab-content">
+                <div class="dashboard-card">
+                    <h2>Parent-Child Relationships</h2>
+
+                    <!-- Bulk Upload Sections -->
+                    <div class="bulk-upload-section">
+                        <h3>Bulk Add Children (CSV)</h3>
+                        <p>Upload a CSV file with columns: 'name', 'birth_date' (optional), 'grade' (optional)</p>
+                        <input type="file" id="children-csv" accept=".csv" class="input-field">
+                        <button onclick="uploadChildrenCSV()" class="primary-btn">Upload Children</button>
+                    </div>
+
+                    <div class="bulk-upload-section">
+                        <h3>Bulk Add Parents (CSV)</h3>
+                        <p>Upload a CSV file with columns: 'name', 'email', 'password'</p>
+                        <input type="file" id="parents-csv" accept=".csv" class="input-field">
+                        <button onclick="uploadParentsCSV()" class="primary-btn">Upload Parents</button>
+                    </div>
+
+                    <div class="bulk-upload-section">
+                        <h3>Bulk Add Parent-Child Relationships (CSV)</h3>
+                        <p>Upload a CSV file with columns: 'parent_email', 'child_name'</p>
+                        <input type="file" id="relationships-csv" accept=".csv" class="input-field">
+                        <button onclick="uploadRelationshipsCSV()" class="primary-btn">Upload Relationships</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Observer-Child Mappings Tab -->
+            <div id="observer-mappings-tab" class="tab-content">
+                <div class="dashboard-card">
+                    <h2>Observer-Child Connections</h2>
+
+                    <!-- Bulk Upload Section -->
+                    <div class="bulk-upload-section">
+                        <h3>Bulk Upload Observer-Student Mappings (CSV)</h3>
+                        <p>Upload a CSV file with columns: 'observer_id', 'student_id'</p>
+                        <input type="file" id="observer-mappings-csv" accept=".csv" class="input-field">
+                        <button onclick="uploadObserverMappingsCSV()" class="primary-btn">Upload Connections</button>
+                    </div>
+
+                    <!-- Add New Mapping -->
+                    <div class="mapping-form">
+                        <h3>Add New Observer-Child Connections</h3>
+                        <div class="form-row">
+                            <select id="mapping-observer-select" class="input-field">
+                                <option value="">Select Observer</option>
+                            </select>
+                            <select id="mapping-child-select" class="input-field">
+                                <option value="">Select Child</option>
+                            </select>
+                            <button onclick="addObserverMapping()" class="primary-btn">Add Connections</button>
+                        </div>
+                    </div>
+
+                    <!-- Current Mappings -->
+                    <div id="observer-mappings-container">
+                        <!-- Mappings will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Logs Tab -->
+            <div id="activity-tab" class="tab-content">
+                <div class="dashboard-card">
+                    <h2>Activity Logs</h2>
+                    <div id="activity-logs-container">
+                        <!-- Activity logs will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Report Processing Tab -->
+            <div id="admin-processing-tab" class="tab-content">
+                <div class="dashboard-card">
+                    <h2>Process Reports for Observers</h2>
+
+                    <!-- Observer and Child Selection -->
+                    <div class="form-row">
+                        <select id="admin-observer-select" class="input-field" onchange="loadObserverChildren()">
+                            <option value="">Select Observer</option>
+                        </select>
+                        <select id="admin-child-select" class="input-field">
+                            <option value="">Select Student</option>
+                        </select>
+                    </div>
+
+                    <!-- Session Information -->
+                    <div class="session-info">
+                        <h3>Session Information</h3>
+                        <div class="form-row">
+                            <input type="date" id="admin-session-date" class="input-field">
+                            <input type="time" id="admin-session-start" class="input-field">
+                            <input type="time" id="admin-session-end" class="input-field">
+                        </div>
+                    </div>
+
+                    <!-- Processing Mode Selection -->
+                    <div class="processing-options">
+                        <div class="option-card" onclick="showAdminImageUpload()">
+                            <div class="option-icon">📷</div>
+                            <h3>OCR Mode (Image Upload)</h3>
+                            <p>Upload an image of an observation sheet</p>
+                        </div>
+
+                        <div class="option-card" onclick="showAdminAudioUpload()">
+                            <div class="option-icon">🎤</div>
+                            <h3>Audio Mode (Recording Upload)</h3>
+                            <p>Upload an audio recording of an observation session</p>
+                        </div>
+                    </div>
+
+                    <!-- Admin Image Upload -->
+                    <div id="admin-image-upload" class="upload-section hidden">
+                        <h3>Upload Photo of Observation Notes</h3>
+                        <div class="upload-area" onclick="document.getElementById('admin-image-input').click()">
+                            <div class="upload-icon">📁</div>
+                            <p>Click here to choose a photo</p>
+                            <input type="file" id="admin-image-input" accept="image/*" style="display: none;" onchange="handleAdminImageUpload(event)">
+                        </div>
+                        <div id="admin-image-preview" class="preview hidden"></div>
+                        <button id="admin-process-image-btn" onclick="processAdminImage()" class="primary-btn hidden">Process Photo</button>
+                    </div>
+
+                    <!-- Admin Audio Upload -->
+                    <div id="admin-audio-upload" class="upload-section hidden">
+                        <h3>Upload Audio Recording</h3>
+                        <div class="upload-area" onclick="document.getElementById('admin-audio-input').click()">
+                            <div class="upload-icon">🎵</div>
+                            <p>Click here to choose an audio file</p>
+                            <input type="file" id="admin-audio-input" accept="audio/*" style="display: none;" onchange="handleAdminAudioUpload(event)">
+                        </div>
+                        <div id="admin-audio-preview" class="preview hidden"></div>
+                        <button id="admin-process-audio-btn" onclick="processAdminAudio()" class="primary-btn hidden">Process Recording</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Display Screen -->
+    <div id="report-screen" class="screen">
+        <div class="container">
+            <div class="header">
+                <h1>Observation Report</h1>
+                <button onclick="goBack()" class="back-btn">Go Back</button>
+            </div>
+
+            <div class="report-card">
+                <div id="report-content"></div>
+
+                <div class="report-actions">
+                    <button onclick="downloadReport()" class="primary-btn">Download Report</button>
+                    <button onclick="showEmailForm()" class="secondary-btn">Send by Email</button>
+                </div>
+
+                <!-- Email Form -->
+                <div id="email-form" class="email-section hidden">
+                    <h3>Send Report by Email</h3>
+                    <input type="email" id="email-recipient" placeholder="Recipient email address" class="input-field">
+                    <input type="text" id="email-subject" placeholder="Email subject" class="input-field">
+                    <button onclick="sendEmail()" class="primary-btn">Send Email</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p id="loading-message">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Message Display -->
+    <div id="message-display" class="message hidden">
+        <p id="message-text"></p>
+        <button onclick="hideMessage()" class="close-btn">×</button>
+    </div>
+
+    <!-- Modal for Goal Details -->
+    <div id="goal-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeGoalModal()">&times;</span>
+            <h2>Goal Details</h2>
+            <div id="goal-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Modal for Report Details -->
+    <div id="report-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeReportModal()">&times;</span>
+            <h2>Report Details</h2>
+            <div id="report-modal-content"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
